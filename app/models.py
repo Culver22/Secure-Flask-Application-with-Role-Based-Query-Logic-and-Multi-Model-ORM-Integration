@@ -1,8 +1,18 @@
+from datetime import datetime
+from flask_login import UserMixin
 from . import db
-from .models import User, Post
 
-# Models will be defined here during implementation.
-# No fields or logic are included in starter code.
+class User(db.Model, UserMixin):
+    __tablename__ = 'user'
+
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(80), nullable=False)
+    role = db.Column(db.String(20), nullable=False, default='user')
+
+    posts = db.relationship("Post", backref="author", lazy=True, cascade="all, delete-orphan")
+
 
 def seed_data():
 
