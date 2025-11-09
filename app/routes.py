@@ -1,4 +1,8 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
+from flask_login import login_user, logout_user, login_required, current_user
+from .models import User, Post
+from . import db
+from sqlalchemy import text
 
 main = Blueprint('main', __name__)
 

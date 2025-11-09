@@ -15,7 +15,7 @@ def create_app():
     login_manager.init_app(app)
 
     # route name for login
-    login_manager.login_view = 'main.login'
+    login_manager.login_view = 'main.login'  # means @login_required will redirect to main.login
 
     from .routes import main
     app.register_blueprint(main)
@@ -25,4 +25,4 @@ def create_app():
 # user loader used by flask-login
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(int(user_id))
+    return User.query.get(int(user_id)) # needed for session handling
