@@ -6,6 +6,9 @@ from sqlalchemy import text
 
 main = Blueprint('main', __name__)
 
+def client_ip(request):
+    return request.headers.get('X-Forwarded-For', request.remote_addr)
+
 @main.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
