@@ -49,5 +49,24 @@ def dashboard():
     role = current_user.role
 
     if role == 'admin':
+        # all fields
         posts = Post.query.order_by(Post.id).all()
+        current_app.logger.info('Successful dashboard | ip=%s | username=%s | role=%s | query=all_posts_full',
+                                client_ip(), current_user.username, role)
+        return render_template('dashboard.html', posts=posts, view='admin')
+
+    if role == 'moderator':
+        # limited fields: post id, post title, author username
+        rows = (db.session.query(Post.id, Post.title, User.username.label('author'))
+                .join(User, Post.author_id==User.id)
+                .order_by(Post.id).all())
+        current_app.logger.info('Successful dashboard | ip=%s | username=%s | role=%s | query=all_posts_limited',
+                                client_ip(), current_user.username, role)
+
+    # else role must be user
+    posts = Post.query.filter_by(author_id=current_user.id).order_by(Post.id).all()
+    current_app.logger.info(
+        "Dashboard accessed | ip=%s | username=%s | role=%s | query=user_posts",
+        client_ip(), current_user.username, role)
+
     return render_template('dashboard.html')
