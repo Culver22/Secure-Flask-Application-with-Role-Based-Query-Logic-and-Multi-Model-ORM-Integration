@@ -1,4 +1,3 @@
-import flask
 from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from .models import User, Post
@@ -34,6 +33,21 @@ def login():
 
     return render_template('login.html')
 
+@main.route('logout')
+@login_required
+def logout():
+    # implemented for testing of data, instead of having to re-run the program
+    username = current_user.username
+    logout_user()
+    current_app.logger.info('Successful logout | ip=%s | username=%s', client_ip(), username)
+    flash('Successfully logged out')
+    return redirect(url_for('main.login'))  # redirect the user back to login
+
 @main.route('/dashboard')
 def dashboard():
+
+    role = current_user.role
+
+    if role == 'admin':
+        posts = Post.query.order_by(Post.id).all()
     return render_template('dashboard.html')
