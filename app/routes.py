@@ -29,7 +29,6 @@ def login():
         # successful login
         current_app.logger.info('Successful login | ip=%s | username=%s | role=%s | id=%s',
                                 client_ip(), username, user.role, user.id)
-        flash('Login successful')
         return redirect(url_for('main.dashboard'))
 
     return render_template('login.html')
