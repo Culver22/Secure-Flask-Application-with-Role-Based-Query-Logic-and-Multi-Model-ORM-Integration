@@ -64,7 +64,7 @@ def dashboard():
                 .order_by(Post.id).all())
         current_app.logger.info('Successful dashboard | ip=%s | username=%s | role=%s | query=all_posts_limited',
                                 client_ip(), current_user.username, role)
-        return render_template('dashboard.html', mod_posts=rows, view='moderator')
+        return render_template('dashboard.html', rows=rows, view='moderator')
 
     # else role must be user
     posts = Post.query.filter_by(author_id=current_user.id).order_by(Post.id).all()
