@@ -73,3 +73,51 @@ def dashboard():
         client_ip(), current_user.username, role)
 
     return render_template('dashboard.html', posts=posts, view='user')
+
+@main.route('/search', methods=['POST'])
+@login_required
+def search():
+    # get user input
+    search_term = request.form.get('search_term')
+
+    sql_statement = text("""
+        SELECT p.id, p.title, p.content, p.author_id, p.created_at, u.username AS author
+        FROM post AS p
+        JOIN user AS u ON p.author_id = u.id
+        WHERE p.title LIKE :pattern OR p.content LIKE :pattern
+        ORDER BY p.id
+    """)
+
+    # bind parameter dictionary, which will be safely inserted into the query
+    params = {'pattern': f'%{search_term}%'}
+
+    # log the SQL and the bound parameters
+    current_app.logger.info(
+        "Executing raw SQL search | ip=%s | username=%s | role=%s | id=%s | sql=%s | params=%s",
+        client_ip(), current_user.username, current_user.role, current_user.id, sql_statement.text, params )
+
+    rows = db.session.execute(sql_statement, params).fetchall()
+
+    # build simple dicts for template rendering
+    results = [
+        {
+            "id": r.id,
+            "title": r.title,
+            "content": r.content,
+            "author_id": r.author_id,
+            "created_at": r.created_at,
+            "author": r.author,
+        }
+        for r in rows
+    ]
+
+    current_app.logger.info(
+        "Search completed | ip=%s | username=%s | role=%s | id=%s | matches=%d",
+        client_ip(), current_user.username, current_user.role, current_user.id, len(results)
+    )
+
+    # reuse the dashboard and keep role context for the page header
+    return render_template('dashboard.html',
+                           view=current_user.role,
+                           search_term=search_term,
+                           search_results=results)
