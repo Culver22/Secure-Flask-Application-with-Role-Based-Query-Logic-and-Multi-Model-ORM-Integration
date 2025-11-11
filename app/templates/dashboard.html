@@ -1,16 +1,65 @@
 {% extends 'base.html' %}
 {% block content %}
-<h2>Dashboard</h2>
-<p>Welcome to your dashboard.</p>
 
-{% with messages = get_flashed_messages() %}
-    {% if messages %}
-        <ul>
-        {% for message in messages %}
-            <li style="color: green;">{{ message }}</li>
-        {% endfor %}
-        </ul>
-    {% endif %}
-{% endwith %}
+<h2>Dashboard</h2>
+<p>Welcome, {{ current_user.username }} (Role: {{ current_user.role }})</p>
+
+<hr>
+
+{% if view == 'admin' %}
+  <h3>All Posts (Full Details)</h3>
+  {% for post in posts %}
+    <div>
+      <p><b>ID:</b> {{ post.id }}</p>
+      <p><b>Title:</b> {{ post.title }}</p>
+      <p><b>Content:</b> {{ post.content }}</p>
+      <p><b>Author ID:</b> {{ post.author_id }}</p>
+      <hr>
+    </div>
+  {% endfor %}
+
+{% elif view == 'moderator' %}
+  <h3>All Posts (Limited Details)</h3>
+  {% for row in rows %}
+    <div>
+      <p><b>ID:</b> {{ row.id }}</p>
+      <p><b>Title:</b> {{ row.title }}</p>
+      <p><b>Author:</b> {{ row.author }}</p>
+      <hr>
+    </div>
+  {% endfor %}
+
+{% elif view == 'user' %}
+  <h3>Your Posts</h3>
+  {% for post in posts %}
+    <div>
+      <p><b>ID:</b> {{ post.id }}</p>
+      <p><b>Title:</b> {{ post.title }}</p>
+      <p><b>Content:</b> {{ post.content }}</p>
+      <hr>
+    </div>
+  {% endfor %}
+{% endif %}
+
+<hr>
+
+<h3>Search Posts</h3>
+<form method="POST" action="{{ url_for('main.search') }}">
+  <input type="text" name="search_term" placeholder="Enter search term">
+  <input type="submit" value="Search">
+</form>
+
+{% if search_results %}
+  <h4>Search Results for "{{ search_term }}"</h4>
+  {% for r in search_results %}
+    <div>
+      <p><b>ID:</b> {{ r.id }}</p>
+      <p><b>Title:</b> {{ r.title }}</p>
+      <p><b>Content:</b> {{ r.content }}</p>
+      <p><b>Author:</b> {{ r.author }}</p>
+      <hr>
+    </div>
+  {% endfor %}
+{% endif %}
 
 {% endblock %}
