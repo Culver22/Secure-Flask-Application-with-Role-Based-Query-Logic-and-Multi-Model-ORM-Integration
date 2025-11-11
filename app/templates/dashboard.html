@@ -8,6 +8,16 @@
 
 <hr>
 
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+    {% for category, message in messages %}
+      <li style="color: green;">{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
 {% if view == 'admin' %}
   <h3>All Posts (Full Details)</h3>
   {% for post in posts %}
