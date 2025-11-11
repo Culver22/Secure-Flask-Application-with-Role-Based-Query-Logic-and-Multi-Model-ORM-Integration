@@ -37,10 +37,9 @@ def create_app():
 
     return app
 
-# import User after db is defined so models can import db without circles
-from .models import User
-
 # user loader used by flask-login
 @login_manager.user_loader
 def load_user(user_id):
+    # import User after db is defined so models can import db without circles
+    from .models import User
     return User.query.get(int(user_id)) # needed for session handling
