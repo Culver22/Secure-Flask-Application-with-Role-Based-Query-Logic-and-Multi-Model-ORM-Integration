@@ -80,13 +80,14 @@ def search():
     # get user input
     search_term = request.form.get('search_term')
 
+    # statement is intentionally not case-sensitive
     sql_statement = text("""
-        SELECT p.id, p.title, p.content, p.author_id, p.created_at, u.username AS author
-        FROM post AS p
-        JOIN user AS u ON p.author_id = u.id
-        WHERE p.title LIKE :pattern OR p.content LIKE :pattern
-        ORDER BY p.id
-    """)
+                         SELECT p.id, p.title, p.content, p.author_id, u.username AS author
+                         FROM post AS p
+                         JOIN user AS u ON p.author_id = u.id
+                         WHERE LOWER(p.title) LIKE LOWER(:pattern) OR LOWER(p.content) LIKE LOWER(:pattern)
+                         ORDER BY p.id
+                         """)
 
     # bind parameter dictionary, which will be safely inserted into the query
     params = {'pattern': f'%{search_term}%'}
@@ -105,7 +106,6 @@ def search():
             "title": r.title,
             "content": r.content,
             "author_id": r.author_id,
-            "created_at": r.created_at,
             "author": r.author,
         }
         for r in rows
