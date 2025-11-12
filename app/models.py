@@ -11,11 +11,12 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
+
     # there are only three possible roles a user can have
     role = db.Column( Enum("user", "moderator", "admin", name="role_enum", validate_strings=True), nullable=False,
         server_default="user")
 
-    # User should be a one-to-many relationship, and if deleted so should all their posts
+    # a user should be a one-to-many relationship, and if deleted so should all their posts
     posts = db.relationship("Post", backref="author", lazy=True, cascade="all, delete-orphan")
 
     def __repr__(self):

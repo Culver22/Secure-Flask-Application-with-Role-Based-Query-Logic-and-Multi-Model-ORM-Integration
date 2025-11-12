@@ -77,6 +77,8 @@ def dashboard():
 @main.route('/search', methods=['POST'])
 @login_required
 def search():
+    # secure raw SQL using bound parameters
+
     # get user input
     search_term = request.form.get('search_term')
 
