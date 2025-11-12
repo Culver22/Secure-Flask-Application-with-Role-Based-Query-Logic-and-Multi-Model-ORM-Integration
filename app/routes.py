@@ -81,18 +81,41 @@ def search():
 
     # get user input
     search_term = request.form.get('search_term')
-
-    # statement is intentionally not case-sensitive
-    sql_statement = text("""
-                         SELECT p.id, p.title, p.content, p.author_id, u.username AS author
-                         FROM post AS p
-                         JOIN user AS u ON p.author_id = u.id
-                         WHERE LOWER(p.title) LIKE LOWER(:pattern) OR LOWER(p.content) LIKE LOWER(:pattern)
-                         ORDER BY p.id
-                         """)
+    role = current_user.role
 
     # bind parameter dictionary, which will be safely inserted into the query
     params = {'pattern': f'%{search_term}%'}
+
+    if role == "admin":
+        # admin: search ALL posts, full details
+        sql_statement = text("""
+                   SELECT p.id, p.title, p.content, p.author_id, u.username AS author
+                   FROM post AS p
+                   JOIN user AS u ON p.author_id = u.id
+                   WHERE LOWER(p.title) LIKE :pattern OR LOWER(p.content) LIKE :pattern
+                   ORDER BY p.id
+                   """)
+    elif role == "moderator":
+        # Moderator: search ALL posts, LIMITED fields
+        sql_statement = text("""
+                   SELECT p.id, p.title, u.username AS author
+                   FROM post AS p
+                   JOIN user AS u ON p.author_id = u.id
+                   WHERE LOWER(p.title) LIKE :pattern OR LOWER(p.content) LIKE :pattern
+                   ORDER BY p.id
+                   """)
+    else:
+        params["uid"] = current_user.id  # bind user scope
+
+        # User: ONLY own posts, full details
+        sql_statement = text("""
+                   SELECT p.id, p.title, p.content, p.author_id, u.username AS author
+                   FROM post AS p
+                   JOIN user AS u ON p.author_id = u.id
+                   WHERE (LOWER(p.title) LIKE :pattern OR LOWER(p.content) LIKE :pattern)
+                    AND p.author_id = :uid
+                   ORDER BY p.id
+                   """)
 
     # log the SQL and the bound parameters
     current_app.logger.info(
